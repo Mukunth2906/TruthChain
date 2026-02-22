@@ -1,51 +1,47 @@
-import os
-import requests
-import colorama
-from colorama import Fore, Back, Style
-import time
+"""Terminal dashboard utilities for TruthChain."""
 
-colorama.init()
+from __future__ import annotations
 
-class Dashboard:
-    def __init__(self):
-        self.participants = {}
-        self.blocks = []
-        self.verification_status = False
+from blockchain import Block, Blockchain
 
-    def add_participant(self, participant):
-        self.participants[participant] = {'activity': [], 'status': 'Active'}
-
-    def update_participant_activity(self, participant, activity):
-        if participant in self.participants:
-            self.participants[participant]['activity'].append(activity)
-
-    def add_block(self, block):
-        self.blocks.append(block)
-
-    def set_verification_status(self, status):
-        self.verification_status = status
-
-    def display_dashboard(self):
-        os.system('clear')  # Use 'cls' if on Windows
-        print(Fore.GREEN + Style.BRIGHT + 'Blockchain Dashboard' + Style.RESET_ALL)  
-        print('-' * 50)
-        print(Fore.BLUE + 'Current Participants:' + Style.RESET_ALL)
-        for participant, info in self.participants.items():
-            print(f'{Fore.CYAN}{participant}: {info['status']} - Activities: {info['activity']}{Style.RESET_ALL}')
-        print('\n' + Fore.BLUE + 'Blocks:' + Style.RESET_ALL)
-        for idx, block in enumerate(self.blocks):
-            print(f'{Fore.YELLOW}Block {idx + 1}: {block}{Style.RESET_ALL}')
-        print('\n' + Fore.BLUE + f'Verification Status: {Fore.RED}{self.verification_status}{Style.RESET_ALL}')
+RESET = "\033[0m"
+BOLD = "\033[1m"
+GREEN = "\033[92m"
+YELLOW = "\033[93m"
+CYAN = "\033[96m"
+MAGENTA = "\033[95m"
+RED = "\033[91m"
 
 
-# Example usage
-if __name__ == '__main__':
-    dashboard = Dashboard()
-    dashboard.add_participant('Alice')
-    dashboard.add_participant('Bob')
-    dashboard.add_block('Genesis Block')
-    dashboard.set_verification_status(True)
+def _short(value: str, size: int = 14) -> str:
+    return value if len(value) <= size else f"{value[:size]}..."
 
-    while True:
-        dashboard.display_dashboard()
-        time.sleep(5)
+
+def render_block(block: Block) -> str:
+    integrity = f"{GREEN}intact{RESET}" if not block.is_tampered() else f"{RED}tampered{RESET}"
+    verified = block.verified_by if block.verified_by else "pending"
+    return (
+        f"{BOLD}Block #{block.index}{RESET}\n"
+        f"  author: {block.author}\n"
+        f"  timestamp: {block.timestamp}\n"
+        f"  type: {block.content_type}\n"
+        f"  ai_score: {block.ai_score:.2f}\n"
+        f"  verified_by: {verified}\n"
+        f"  content_hash: {MAGENTA}{_short(block.content_hash, 24)}{RESET}\n"
+        f"  previous_hash: {MAGENTA}{_short(block.previous_hash, 24)}{RESET}\n"
+        f"  hash: {CYAN}{_short(block.hash, 24)}{RESET}\n"
+        f"  integrity: {integrity}\n"
+    )
+
+
+def render_chain(blockchain: Blockchain) -> str:
+    header = f"{BOLD}{CYAN}TruthChain Dashboard{RESET}\nChain length: {len(blockchain.chain)}\n"
+    body = "\n".join(render_block(block) for block in blockchain.chain)
+    valid, message = blockchain.validate_chain()
+    status_color = GREEN if valid else RED
+    footer = f"{BOLD}Integrity Check:{RESET} {status_color}{message}{RESET}"
+    return f"{header}\n{body}\n{footer}"
+
+
+def print_chain(blockchain: Blockchain) -> None:
+    print(render_chain(blockchain))
