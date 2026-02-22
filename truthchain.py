@@ -24,8 +24,7 @@ from dotenv import load_dotenv
 # ── Load API Key from .env ─────────────────────
 load_dotenv()
 HF_API_KEY   = os.getenv("HUGGINGFACE_API_KEY")
-HF_MODEL_URL = "https://api-inference.huggingface.co/models/roberta-base-openai-detector"
-
+HF_MODEL_URL = "https://router.huggingface.co/hf-inference/models/openai-community/roberta-base-openai-detector"
 # ── Colors ─────────────────────────────────────
 R  = "\033[91m"   # Red
 G  = "\033[92m"   # Green
