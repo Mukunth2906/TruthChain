@@ -1,77 +1,59 @@
-# Automated Tamper Attack Simulations on Blockchain Blocks
+# Automated Tamper Attack Simulations
 
-This script demonstrates automated simulations of tamper attack scenarios on blockchain blocks. It covers various attack scenarios, detection mechanisms, and reporting of integrity violations.
-
-## Attack Scenarios
-
-1. **Block Data Tampering**: Modifying the data of existing blocks.
-2. **Block Reordering**: Changing the order of blocks to manipulate the blockchain state.
-3. **Double Spending**: Attempting to spend the same digital currency multiple times.
-
-## Detection Mechanisms
-
-- **Hash Checking**: Verifying the integrity of blocks by checking their hash values.
-- **Consensus Algorithm Simulation**: Simulating consensus algorithms (like Proof of Work) to identify inconsistencies.
-
-## Reporting Integrity Violations
-
-The script logs any detected integrity violations with details on the type of attack and the block(s) involved.
-
-## Python Code
-
-```python
 import hashlib
 import random
 import json
-import time
+
+class Block:
+    def __init__(self, index, previous_hash, timestamp, data, hash):
+        self.index = index
+        self.previous_hash = previous_hash
+        self.timestamp = timestamp
+        self.data = data
+        self.hash = hash
+
+    def calculate_hash(self):
+        value = str(self.index) + str(self.previous_hash) + str(self.timestamp) + json.dumps(self.data)
+        return hashlib.sha256(value.encode()).hexdigest()
 
 class Blockchain:
     def __init__(self):
         self.chain = []
-        self.create_block(data='Genesis Block', previous_hash='0')
+        self.create_block(0, '0')  # genesis block
 
-    def create_block(self, data, previous_hash):
-        block = {
-            'index': len(self.chain) + 1,
-            'timestamp': time.time(),
-            'data': data,
-            'previous_hash': previous_hash,
-        }
+    def create_block(self, index, previous_hash, data=None):
+        block = Block(index, previous_hash, int(time.time()), data or {}, '')
+        block.hash = block.calculate_hash()
         self.chain.append(block)
         return block
 
-    def tamper_block(self, index, new_data):
-        if index < len(self.chain):  
-            original_data = self.chain[index]['data']
-            self.chain[index]['data'] = new_data
-            print(f"Block {index} tampered: {original_data} -> {new_data}")
-        else:
-            print("Invalid block index!")
+    def tamper_attack(self, block_index, new_data):
+        if block_index >= len(self.chain):
+            print('Block index out of range')
+            return
+        self.chain[block_index].data = new_data  # Tamper the block data
+        self.chain[block_index].hash = self.chain[block_index].calculate_hash()  # Recalculate hash
 
-    def report_integrity_violations(self):
+    def validate_chain(self):
         for i in range(1, len(self.chain)):
-            current = self.chain[i]
-            previous = self.chain[i - 1]
-            if current['previous_hash'] != self.hash(previous):
-                print(f"Integrity violation detected at block {i}!")
+            current_block = self.chain[i]
+            previous_block = self.chain[i - 1]
+            if current_block.hash != current_block.calculate_hash():
+                print(f'Integrity violation at block {current_block.index}')
+                return False
+            if current_block.previous_hash != previous_block.hash:
+                print(f'Hash manipulation detected between blocks {current_block.index} and {previous_block.index}')
+                return False
+        return True
 
-    @staticmethod
-    def hash(block):
-        block_string = json.dumps(block, sort_keys=True).encode()
-        return hashlib.sha256(block_string).hexdigest()
+# Example Usage
+if __name__ == '__main__':
+    blockchain = Blockchain()
+    blockchain.create_block(1, blockchain.chain[-1].hash, {'amount': 10})
+    blockchain.create_block(2, blockchain.chain[-1].hash, {'amount': 20})  
 
-# Simulating tamper attacks
-blockchain = Blockchain()
-blockchain.create_block(data='Transaction 1', previous_hash=blockchain.chain[-1]['previous_hash'])
-blockchain.create_block(data='Transaction 2', previous_hash=blockchain.chain[-1]['previous_hash'])
-
-# Performing tampering
-blockchain.tamper_block(1, 'Tampered Transaction 1')
-blockchain.report_integrity_violations()
-``` 
-
-## Usage
-Run this script in a Python environment. Ensure you have the necessary permissions to modify files and execute scripts. The script will output any integrity violations detected during the simulation.
-
-## Note
-This script is for educational purposes only and should not be used to conduct unlawful activities.
+    print('Original chain validation:', blockchain.validate_chain())  # Should be True
+    blockchain.tamper_attack(1, {'amount': 100})
+    print('After tamper attack validation:', blockchain.validate_chain())  # Should be False
+    
+    
