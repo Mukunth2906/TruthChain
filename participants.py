@@ -1,46 +1,41 @@
+# Comprehensive Participant Role Classes for TruthChain
+
 class ContentCreator:
     def __init__(self, name):
         self.name = name
-        self.content = []
 
-    def create_content(self, content):
-        self.content.append(content)
-        print(f"{self.name} created content:", content)
-
+    def publish_content(self, content):
+        # Logic to publish content to the blockchain
+        print(f"Content published by {self.name}: {content}")
 
 class AITagger:
     def __init__(self, name):
         self.name = name
 
-    def tag_content(self, content):
-        # Implement AI tagging logic here
-        tags = ["AI", "Tagging"]  # Example tags
-        print(f"{self.name} tagged content:", content, "with tags:", tags)
-
+    def detect_ai(self, content):
+        # Logic to detect AI-generated content
+        print(f"AI detection by {self.name}: {content}")
 
 class FactChecker:
     def __init__(self, name):
         self.name = name
 
-    def check_facts(self, content):
-        # Implement fact-checking logic here
-        is_valid = True  # Example validation
-        print(f"{self.name} fact-checked content:", content, "Valid:", is_valid)
-
+    def verify_block(self, block):
+        # Logic to verify the integrity of a blockchain block
+        print(f"Block verification by {self.name}: {block}")
 
 class Publisher:
     def __init__(self, name):
         self.name = name
 
-    def publish_content(self, content):
-        # Implement publishing logic here
-        print(f"{self.name} published content:", content)
-
+    def check_integrity(self, content):
+        # Logic to check content integrity
+        print(f"Integrity check by {self.name}: {content}")
 
 class EndUser:
     def __init__(self, name):
         self.name = name
 
-    def consume_content(self, content):
-        # Implement content consumption logic here
-        print(f"{self.name} consumed content:", content)
+    def query_provenance(self, content):
+        # Logic to query content provenance
+        print(f"Provenance query by {self.name}: {content}")
