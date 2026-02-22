@@ -1,41 +1,62 @@
-# Comprehensive Participant Role Classes for TruthChain
+# participants.py
+
+# Import necessary classes
+from blockchain import Block, Blockchain
 
 class ContentCreator:
     def __init__(self, name):
         self.name = name
+        self.content = []
 
-    def publish_content(self, content):
-        # Logic to publish content to the blockchain
-        print(f"Content published by {self.name}: {content}")
+    def create_content(self, content):
+        self.content.append(content)
+        return content
 
 class AITagger:
     def __init__(self, name):
         self.name = name
 
-    def detect_ai(self, content):
-        # Logic to detect AI-generated content
-        print(f"AI detection by {self.name}: {content}")
+    def tag_content(self, content):
+        # Implement logic to tag content with AI
+        pass
 
 class FactChecker:
     def __init__(self, name):
         self.name = name
 
-    def verify_block(self, block):
-        # Logic to verify the integrity of a blockchain block
-        print(f"Block verification by {self.name}: {block}")
+    def verify_facts(self, content):
+        # Implement logic to verify facts
+        pass
 
 class Publisher:
     def __init__(self, name):
         self.name = name
 
-    def check_integrity(self, content):
-        # Logic to check content integrity
-        print(f"Integrity check by {self.name}: {content}")
+    def publish_content(self, content):
+        # Implement logic to publish content
+        pass
 
 class EndUser:
     def __init__(self, name):
         self.name = name
 
-    def query_provenance(self, content):
-        # Logic to query content provenance
-        print(f"Provenance query by {self.name}: {content}")
+    def consume_content(self, content):
+        # Implement logic to consume or evaluate the content
+        pass
+
+# Blockchain related classes
+class Block:
+    def __init__(self, previous_hash, transactions):
+        self.previous_hash = previous_hash
+        self.transactions = transactions
+        self.timestamp = time.time()
+
+class Blockchain:
+    def __init__(self):
+        self.chain = []
+        self.create_block(previous_hash='1', transactions=[])
+
+    def create_block(self, previous_hash, transactions):
+        block = Block(previous_hash, transactions)
+        self.chain.append(block)
+        return block
